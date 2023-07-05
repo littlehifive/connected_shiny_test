@@ -1,0 +1,13 @@
+name: connected_shiny_test
+title: connected_shiny_test
+username:
+account: 49lv5s-zezhen-wu
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 9412488
+bundleId: 7423319
+url: https://49lv5s-zezhen-wu.shinyapps.io/connected_shiny_test/
+when: 1688576457.66697
+lastSyncTime: 1688576457.66698
+asMultiple: FALSE
+asStatic: FALSE
