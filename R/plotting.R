@@ -1,5 +1,6 @@
 library(dplyr)
 library(plotly)
+library(forcats)
 library(RColorBrewer)
 
 # Function to plot schools
@@ -132,4 +133,112 @@ plot_progress <- function(data = dat){
            barmode = 'group')
   
   return(p)
+}
+
+# Function to plot endline student level
+plot_stu_level_e <- function(data = dat){
+  
+  # Make sure that stud_level_endline is an ordered factor
+  df <- data |> 
+    mutate(stud_level_endline = factor(stud_level_endline, 
+                                       levels = c("Beginner", "Addition", 
+                                                  "Subtraction", "Multiplication", "Division"), 
+                                       ordered = TRUE))
+  
+  # Calculate the counts and proportions
+  df_counts <- df %>%
+    count(treatment, stud_level_endline) %>%
+    na.omit() |> 
+    group_by(treatment) %>%
+    mutate(fraction = n / sum(n)) 
+  
+  # Plot
+  p <- plot_ly(df_counts, x = ~treatment, y = ~fraction, type = 'bar', color = ~stud_level_endline,
+          text = ~paste("Proportion of", stud_level_endline, "in", "\n", treatment, "Group: ", "\n", round(fraction*100, 1), "%"),
+          hoverinfo = "text") %>%
+    layout(yaxis = list(title = 'Proportion', tickformat = ".0%", range = c(0, 1)), 
+           xaxis = list(title = 'Treatment'), 
+           barmode = 'stack',
+           title = "")
+  
+  return(p)
+  
+}
+
+# Function to plot endline innumeracy
+plot_innumeracy_e <- function(data = dat){
+
+  # Calculate the counts and proportions
+  df_counts <- data %>%
+    count(treatment, innumeracy_el) %>%
+    na.omit() |> 
+    group_by(treatment) %>%
+    mutate(fraction = n / sum(n)) |>
+    filter(innumeracy_el == "Cannot add")
+
+  # Plot
+  p <- df_counts %>%
+    plot_ly(x = ~treatment, y = ~fraction) %>%
+    add_segments(x = ~treatment, xend = ~treatment, y = 0, yend = ~fraction, showlegend = FALSE, line = list(color = '#acd4cc', width = 3)) %>%
+    add_markers(marker = list(size = 12, color = '#f87463'),
+                hoverinfo = "text",
+                text = ~paste0(treatment, ": ", sprintf("%.1f", 100 * fraction),"% Innumeracy at Endline")) %>%
+    layout(title = "",
+           xaxis = list(title = "Treatment"),
+           yaxis = list(title = "Proportion"))
+  
+  return(p)
+
+}
+
+# Function to plot endline numeracy
+plot_numeracy_e <- function(data = dat){
+  
+  # Calculate the counts and proportions
+  df_counts <- data %>%
+    count(treatment, numeracy_el) %>%
+    na.omit() |> 
+    group_by(treatment) %>%
+    mutate(fraction = n / sum(n)) |>
+    filter(numeracy_el == "Can divide")
+  
+  # Plot
+  p <- df_counts %>%
+    plot_ly(x = ~treatment, y = ~fraction) %>%
+    add_segments(x = ~treatment, xend = ~treatment, y = 0, yend = ~fraction, showlegend = FALSE, line = list(color = '#acd4cc', width = 3)) %>%
+    add_markers(marker = list(size = 12, color = '#f87463'),
+                hoverinfo = "text",
+                text = ~paste0(treatment, ": ", sprintf("%.1f", 100 * fraction),"% Numeracy at Endline")) %>%
+    layout(title = "",
+           xaxis = list(title = "Treatment"),
+           yaxis = list(title = "Proportion"))
+  
+  return(p)
+  
+}
+
+# Function to plot endline learned new operation
+plot_learn_newop_e <- function(data = dat){
+  
+  # Calculate the counts and proportions
+  df_counts <- data %>%
+    count(treatment, learned_new_operation) %>%
+    na.omit() |> 
+    group_by(treatment) %>%
+    mutate(fraction = n / sum(n)) |>
+    filter(learned_new_operation == "Yes")
+  
+  # Plot
+  p <- df_counts %>%
+    plot_ly(x = ~treatment, y = ~fraction) %>%
+    add_segments(x = ~treatment, xend = ~treatment, y = 0, yend = ~fraction, showlegend = FALSE, line = list(color = '#acd4cc', width = 3)) %>%
+    add_markers(marker = list(size = 12, color = '#f87463'),
+                hoverinfo = "text",
+                text = ~paste0(treatment, ": ", sprintf("%.1f", 100 * fraction),"% Innumeracy at Endline")) %>%
+    layout(title = "",
+           xaxis = list(title = "Treatment"),
+           yaxis = list(title = "Proportion"))
+  
+  return(p)
+  
 }

@@ -38,8 +38,14 @@ ui <- dashboardPage(
       box(title = "Treatment % Statistics", width = 3, plotlyOutput("n_treatment"))
     ),
     fluidRow(
-      box(title = "Progress by treatment", width = 12, plotlyOutput("progress_by_treatment"))
+      box(title = "Proportion of Student Level at Endline by Treatment Condition", width = 3, plotlyOutput("p_stu_level")),
+      box(title = "Proportion of Innumeracy at Endline by Treatment Condition", width = 3, plotlyOutput("p_innumeracy")),
+      box(title = "Proportion of Numeracy at Endline by Treatment Condition", width = 3, plotlyOutput("p_numeracy")),
+      box(title = "Proportion of Students that Learned New Operations at Endline by Treatment Condition", width = 3, plotlyOutput("p_learn_newop"))
     )
+    # fluidRow(
+    #   box(title = "Progress by treatment", width = 12, plotlyOutput("progress_by_treatment"))
+    # )
   )
 )
 
@@ -82,9 +88,25 @@ server <- function(input, output, session) {
     plot_treatment(selected_data())
   })
   
-  output$progress_by_treatment <- renderPlotly({
-    plot_progress(selected_data())
+  output$p_stu_level <- renderPlotly({
+    plot_stu_level_e(selected_data())
   })
+  
+  output$p_innumeracy <- renderPlotly({
+    plot_innumeracy_e(selected_data())
+  })
+  
+  output$p_numeracy <- renderPlotly({
+    plot_numeracy_e(selected_data())
+  })
+  
+  output$p_learn_newop <- renderPlotly({
+    plot_learn_newop_e(selected_data())
+  })
+  
+  # output$progress_by_treatment <- renderPlotly({
+  #   plot_progress(selected_data())
+  # })
 }
 
 shinyApp(ui, server)
