@@ -1,6 +1,6 @@
 library(shinydashboard)
-library(ggplot2)
-library(scales)
+#library(ggplot2)
+#library(scales)
 
 source(here::here("R/data_prep.R"))
 source(here::here("R/plotting.R"))
@@ -38,11 +38,13 @@ ui <- dashboardPage(
       box(title = "Treatment % Statistics", width = 3, plotlyOutput("n_treatment"))
     ),
     fluidRow(
-      box(title = "Proportion of Student Level at Endline by Treatment Condition", width = 3, plotlyOutput("p_stu_level")),
-      box(title = "Proportion of Innumeracy at Endline by Treatment Condition", width = 3, plotlyOutput("p_innumeracy")),
-      box(title = "Proportion of Numeracy at Endline by Treatment Condition", width = 3, plotlyOutput("p_numeracy")),
-      box(title = "Proportion of Students that Learned New Operations at Endline by Treatment Condition", width = 3, plotlyOutput("p_learn_newop"))
-    )
+      box(title = "Proportion of Student Level at Endline by Treatment Condition", width = 6, plotlyOutput("p_stu_level")),
+      box(title = "Proportion of Innumeracy at Endline by Treatment Condition", width = 6, plotlyOutput("p_innumeracy"))    
+      ),
+    fluidRow(
+      box(title = "Proportion of Numeracy at Endline by Treatment Condition", width = 6, plotlyOutput("p_numeracy")),
+      box(title = "Proportion of Students that Learned New Operations at Endline by Treatment Condition", width = 6, plotlyOutput("p_learn_newop"))
+    )    
     # fluidRow(
     #   box(title = "Progress by treatment", width = 12, plotlyOutput("progress_by_treatment"))
     # )
@@ -89,19 +91,26 @@ server <- function(input, output, session) {
   })
   
   output$p_stu_level <- renderPlotly({
-    plot_stu_level_e(selected_data())
+    plot_stu_level_e(data = selected_data(),
+                     selected_rounds = input$selected_round)
   })
   
   output$p_innumeracy <- renderPlotly({
-    plot_innumeracy_e(selected_data())
+    plot_innumeracy_e(data = selected_data(),
+                      selected_rounds = input$selected_round
+                      )
   })
   
   output$p_numeracy <- renderPlotly({
-    plot_numeracy_e(selected_data())
+    plot_numeracy_e(data = selected_data(),
+                      selected_rounds = input$selected_round
+    )
   })
   
   output$p_learn_newop <- renderPlotly({
-    plot_learn_newop_e(selected_data())
+    plot_learn_newop_e(data = selected_data(),
+                    selected_rounds = input$selected_round
+    )
   })
   
   # output$progress_by_treatment <- renderPlotly({

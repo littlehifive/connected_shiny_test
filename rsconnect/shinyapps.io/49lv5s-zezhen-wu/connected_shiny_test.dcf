@@ -5,9 +5,9 @@ account: 49lv5s-zezhen-wu
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 9412488
-bundleId: 7446655
+bundleId: 7448853
 url: https://49lv5s-zezhen-wu.shinyapps.io/connected_shiny_test/
-when: 1689132294.69853
-lastSyncTime: 1689132294.69854
+when: 1689175287.97059
+lastSyncTime: 1689175287.9706
 asMultiple: FALSE
 asStatic: FALSE

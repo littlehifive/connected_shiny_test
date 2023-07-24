@@ -1,5 +1,6 @@
 library(dplyr)
 library(plotly)
+library(purrr)
 library(forcats)
 library(RColorBrewer)
 
@@ -136,108 +137,186 @@ plot_progress <- function(data = dat){
 }
 
 # Function to plot endline student level
-plot_stu_level_e <- function(data = dat){
+plot_stu_level_e <- function(data = dat,
+                             selected_rounds = c("R5", "R6", "R7", "R8")){
   
-  # Make sure that stud_level_endline is an ordered factor
   df <- data |> 
     mutate(stud_level_endline = factor(stud_level_endline, 
                                        levels = c("Beginner", "Addition", 
                                                   "Subtraction", "Multiplication", "Division"), 
                                        ordered = TRUE))
   
-  # Calculate the counts and proportions
-  df_counts <- df %>%
-    count(treatment, stud_level_endline) %>%
-    na.omit() |> 
-    group_by(treatment) %>%
-    mutate(fraction = n / sum(n)) 
+  plot_list <- purrr::imap(selected_rounds, function(r, index) {
+    data_subset <- df %>% filter(round == r)
+    
+    df_counts <- data_subset %>%
+      count(round, treatment, stud_level_endline) %>%
+      na.omit() |> 
+      group_by(treatment) %>%
+      mutate(fraction = n / sum(n)) 
+    
+    show_legend = ifelse(index == 1, TRUE, FALSE)
+    
+    df_counts %>%
+      plot_ly(x = ~treatment, y = ~fraction, type = 'bar', color = ~stud_level_endline,
+              legendgroup = ~stud_level_endline,
+              hoverinfo = "text", 
+              hovertext = ~paste("Proportion of", stud_level_endline, "in", "\n", treatment, "Group: ", "\n", round(fraction*100, 1), "%"),
+              showlegend = show_legend) %>%
+      layout(yaxis = list(title = 'Proportion', tickformat = ".0%", range = c(0, 1)), 
+             xaxis = list(title = 'Treatment'), 
+             barmode = 'stack',
+             title = "")
+    
+    
+  })
   
-  # Plot
-  p <- plot_ly(df_counts, x = ~treatment, y = ~fraction, type = 'bar', color = ~stud_level_endline,
-          text = ~paste("Proportion of", stud_level_endline, "in", "\n", treatment, "Group: ", "\n", round(fraction*100, 1), "%"),
-          hoverinfo = "text") %>%
-    layout(yaxis = list(title = 'Proportion', tickformat = ".0%", range = c(0, 1)), 
-           xaxis = list(title = 'Treatment'), 
-           barmode = 'stack',
-           title = "")
+  nrows <- ifelse(length(plot_list) <= 2, 1, 2)
+  
+  p <- do.call(subplot, c(plot_list, 
+                          list(nrows = nrows, 
+                               titleY = TRUE, 
+                               titleX = TRUE, 
+                               margin = c(0.1, 0.1, 0.1, 0.1))))
   
   return(p)
-  
 }
 
+
+
 # Function to plot endline innumeracy
-plot_innumeracy_e <- function(data = dat){
-
-  # Calculate the counts and proportions
-  df_counts <- data %>%
-    count(treatment, innumeracy_el) %>%
-    na.omit() |> 
-    group_by(treatment) %>%
-    mutate(fraction = n / sum(n)) |>
-    filter(innumeracy_el == "Cannot add")
-
-  # Plot
-  p <- df_counts %>%
-    plot_ly(x = ~treatment, y = ~fraction) %>%
-    add_segments(x = ~treatment, xend = ~treatment, y = 0, yend = ~fraction, showlegend = FALSE, line = list(color = '#acd4cc', width = 3)) %>%
-    add_markers(marker = list(size = 12, color = '#f87463'),
-                hoverinfo = "text",
-                text = ~paste0(treatment, ": ", sprintf("%.1f", 100 * fraction),"% Innumeracy at Endline")) %>%
-    layout(title = "",
-           xaxis = list(title = "Treatment"),
-           yaxis = list(title = "Proportion"))
+plot_innumeracy_e <- function(data = dat,
+                              selected_rounds = c("R5", "R6", "R7", "R8")){
   
+  # Create a list of plots
+  plot_list <- map(selected_rounds, function(r) {
+    data_subset <- dat %>% filter(round == r)
+    
+    # Calculate the counts and proportions
+    df_counts <- data_subset %>%
+      count(round, treatment, innumeracy_el) %>%
+      na.omit() |> 
+      group_by(treatment) %>%
+      mutate(fraction = n / sum(n)) |>
+      filter(innumeracy_el == "Cannot add")
+    
+    # Plot
+    df_counts %>%
+      plot_ly(x = ~treatment, 
+              y = ~fraction, 
+              type = "bar", 
+              color = ~treatment, 
+              colors = "Greens", 
+              text = ~paste0("Round ", unique(df_counts$round), " - ", treatment, ": ", 
+                             sprintf("%.1f", 100 * fraction),
+                             "% Innumeracy at Endline"), 
+              hoverinfo = "text",
+              showlegend = F) %>%
+      layout(xaxis = list(title = paste0("Treatment Groups at ", unique(df_counts$round))), 
+             yaxis = list(title = "Proportion"))
+  })
+  
+  # Check how many plots are selected
+  nrows <- ifelse(length(plot_list) <= 2, 1, 2)
+  
+  # Combine the plots
+  p <- do.call(subplot, c(plot_list, 
+                          list(nrows = nrows, 
+                               titleY = TRUE, 
+                               titleX = TRUE, 
+                               margin = c(0.1, 0.1, 0.1, 0.1))))
+
   return(p)
 
 }
 
 # Function to plot endline numeracy
-plot_numeracy_e <- function(data = dat){
+plot_numeracy_e <- function(data = dat,
+                            selected_rounds = c("R5", "R6", "R7", "R8")){
+
+  # Create a list of plots
+  plot_list <- map(selected_rounds, function(r) {
+    data_subset <- dat %>% filter(round == r)
+    
+    # Calculate the counts and proportions
+    df_counts <- data_subset %>%
+      count(round, treatment, numeracy_el) %>%
+      na.omit() |> 
+      group_by(treatment) %>%
+      mutate(fraction = n / sum(n)) |>
+      filter(numeracy_el == "Can divide")
+    
+    # Plot
+    df_counts %>%
+      plot_ly(x = ~treatment, 
+              y = ~fraction, 
+              type = "bar", 
+              color = ~treatment, 
+              colors = "Greens", 
+              text = ~paste0("Round ", unique(df_counts$round), " - ", treatment, ": ", 
+                             sprintf("%.1f", 100 * fraction),
+                             "% Innumeracy at Endline"), 
+              hoverinfo = "text",
+              showlegend = F) %>%
+      layout(xaxis = list(title = paste0("Treatment Groups at ", unique(df_counts$round))), 
+             yaxis = list(title = "Proportion"))
+  })
   
-  # Calculate the counts and proportions
-  df_counts <- data %>%
-    count(treatment, numeracy_el) %>%
-    na.omit() |> 
-    group_by(treatment) %>%
-    mutate(fraction = n / sum(n)) |>
-    filter(numeracy_el == "Can divide")
+  # Check how many plots are selected
+  nrows <- ifelse(length(plot_list) <= 2, 1, 2)
   
-  # Plot
-  p <- df_counts %>%
-    plot_ly(x = ~treatment, y = ~fraction) %>%
-    add_segments(x = ~treatment, xend = ~treatment, y = 0, yend = ~fraction, showlegend = FALSE, line = list(color = '#acd4cc', width = 3)) %>%
-    add_markers(marker = list(size = 12, color = '#f87463'),
-                hoverinfo = "text",
-                text = ~paste0(treatment, ": ", sprintf("%.1f", 100 * fraction),"% Numeracy at Endline")) %>%
-    layout(title = "",
-           xaxis = list(title = "Treatment"),
-           yaxis = list(title = "Proportion"))
+  # Combine the plots
+  p <- do.call(subplot, c(plot_list, 
+                          list(nrows = nrows, 
+                               titleY = TRUE, 
+                               titleX = TRUE, 
+                               margin = c(0.1, 0.1, 0.1, 0.1))))
   
   return(p)
   
 }
 
 # Function to plot endline learned new operation
-plot_learn_newop_e <- function(data = dat){
+plot_learn_newop_e <- function(data = dat,
+                               selected_rounds = c("R5", "R6", "R7", "R8")){
   
-  # Calculate the counts and proportions
-  df_counts <- data %>%
-    count(treatment, learned_new_operation) %>%
-    na.omit() |> 
-    group_by(treatment) %>%
-    mutate(fraction = n / sum(n)) |>
-    filter(learned_new_operation == "Yes")
+  # Create a list of plots
+  plot_list <- map(selected_rounds, function(r) {
+    data_subset <- dat %>% filter(round == r)
+    
+    # Calculate the counts and proportions
+    df_counts <- data_subset %>%
+      count(round, treatment, learned_new_operation) %>%
+      na.omit() |> 
+      group_by(treatment) %>%
+      mutate(fraction = n / sum(n)) |>
+      filter(learned_new_operation == "Yes")
+    
+    # Plot
+    df_counts %>%
+      plot_ly(x = ~treatment, 
+              y = ~fraction, 
+              type = "bar", 
+              color = ~treatment, 
+              colors = "Greens", 
+              text = ~paste0("Round ", unique(df_counts$round), " - ", treatment, ": ", 
+                             sprintf("%.1f", 100 * fraction),
+                             "% Innumeracy at Endline"), 
+              hoverinfo = "text",
+              showlegend = F) %>%
+      layout(xaxis = list(title = paste0("Treatment Groups at ", unique(df_counts$round))), 
+             yaxis = list(title = "Proportion"))
+  })
   
-  # Plot
-  p <- df_counts %>%
-    plot_ly(x = ~treatment, y = ~fraction) %>%
-    add_segments(x = ~treatment, xend = ~treatment, y = 0, yend = ~fraction, showlegend = FALSE, line = list(color = '#acd4cc', width = 3)) %>%
-    add_markers(marker = list(size = 12, color = '#f87463'),
-                hoverinfo = "text",
-                text = ~paste0(treatment, ": ", sprintf("%.1f", 100 * fraction),"% Innumeracy at Endline")) %>%
-    layout(title = "",
-           xaxis = list(title = "Treatment"),
-           yaxis = list(title = "Proportion"))
+  # Check how many plots are selected
+  nrows <- ifelse(length(plot_list) <= 2, 1, 2)
+  
+  # Combine the plots
+  p <- do.call(subplot, c(plot_list, 
+                          list(nrows = nrows, 
+                               titleY = TRUE, 
+                               titleX = TRUE, 
+                               margin = c(0.1, 0.1, 0.1, 0.1))))
   
   return(p)
   
