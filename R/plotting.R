@@ -140,25 +140,24 @@ plot_progress <- function(data = dat){
 plot_stu_level_b <- function(data = dat){
 
   df <- data |> 
-    mutate(stud_level_baseline = factor(stud_level_endline, 
+    mutate(stud_level_baseline = factor(stud_level_baseline, 
                                        levels = rev(c("Beginner", "Addition", 
                                                       "Subtraction", "Multiplication", "Division")), 
                                        ordered = TRUE)
            )
   
   df_counts_b <- df %>%
-    count(treatment, stud_level_baseline) %>%
+    count(stud_level_baseline) %>%
     na.omit() |> 
-    group_by(treatment) %>%
     mutate(fraction = n / sum(n)) 
   
   p <- df_counts_b %>%
-    plot_ly(x = ~treatment, y = ~fraction, type = 'bar', color = ~stud_level_baseline,
+    plot_ly(x = ~stud_level_baseline, y = ~fraction, type = 'bar', color = ~stud_level_baseline,
             legendgroup = ~stud_level_baseline,
             hoverinfo = "text", 
-            hovertext = ~paste("Proportion of", stud_level_baseline, "in", "\n", treatment, "Group: ", "\n", round(fraction*100, 1), "%")) %>%
-    layout(yaxis = list(title = 'Proportion', tickformat = ".0%", range = c(0, 1)), 
-           xaxis = list(title = 'Treatment'), 
+            hovertext = ~paste0("Proportion of ", stud_level_baseline, ": ", round(fraction*100, 1), "%")) %>%
+    layout(yaxis = list(title = 'Proportion'), 
+           xaxis = list(title = ''), 
            barmode = 'stack',
            title = "")
   
@@ -176,18 +175,17 @@ plot_stu_level_e <- function(data = dat){
                                         ordered = TRUE)
     )
   
-  df_counts_b <- df %>%
-    count(treatment, stud_level_endline) %>%
+  df_counts_e <- df %>%
+    count(stud_level_endline) %>%
     na.omit() |> 
-    group_by(treatment) %>%
     mutate(fraction = n / sum(n)) 
   
-  p <- df_counts_b %>%
-    plot_ly(x = ~treatment, y = ~fraction, type = 'bar', color = ~stud_level_endline,
+  p <- df_counts_e %>%
+    plot_ly(x = ~stud_level_endline, y = ~fraction, type = 'bar', color = ~stud_level_endline,
             legendgroup = ~stud_level_endline,
             hoverinfo = "text", 
-            hovertext = ~paste("Proportion of", stud_level_endline, "in", "\n", treatment, "Group: ", "\n", round(fraction*100, 1), "%")) %>%
-    layout(yaxis = list(title = 'Proportion', tickformat = ".0%", range = c(0, 1)), 
+            hovertext = ~paste0("Proportion of ", stud_level_endline, ": ", round(fraction*100, 1), "%")) %>%
+    layout(yaxis = list(title = 'Proportion'), 
            xaxis = list(title = 'Treatment'), 
            barmode = 'stack',
            title = "")
@@ -289,28 +287,37 @@ plot_stu_level_e_r <- function(data = dat,
 }
 
 
-# Function to plot baseline innumeracy (not by rounds)
-plot_innumeracy_b <- function(data = dat){
+# Function to plot baseline and endline innumeracy (not by rounds)
+plot_innumeracy_be <- function(data = dat){
   
     # Calculate the counts and proportions
     df_counts <- data %>%
-      count(treatment, innumeracy_bl) %>%
+      count(innumeracy_bl) %>%
       na.omit() |> 
-      group_by(treatment) %>%
       mutate(fraction = n / sum(n)) |>
-      filter(innumeracy_bl == "Cannot add")
+      filter(innumeracy_bl == "Cannot add") |>
+      bind_rows(
+        data %>%
+          count(innumeracy_el) %>%
+          na.omit() |> 
+          mutate(fraction = n / sum(n)) |>
+          filter(innumeracy_el == "Cannot add")
+      ) |> 
+      pivot_longer(cols = c(innumeracy_bl, innumeracy_el), names_to = "time") |> 
+      na.omit() |> 
+      mutate(time = ifelse(time == "innumeracy_bl", "Baseline", "Endline"))
     
     # Plot
     p <- df_counts %>%
-      plot_ly(x = ~treatment, 
+      plot_ly(x = ~time, 
               y = ~fraction, 
               type = "bar", 
-              color = ~treatment, 
+              color = ~time, 
               colors = "Greens", 
-              hovertext = ~paste("Proportion of", innumeracy_bl, "in", "\n", treatment, "Group: ", "\n", round(fraction*100, 1), "%"),
+              hovertext = ~paste0("Proportion of ", value, " at ", time, ": ", round(fraction*100, 1), "%"),
               hoverinfo = "text",
               showlegend = F) %>%
-      layout(xaxis = list(title = "Treatment"), 
+      layout(xaxis = list(title = ""), 
              yaxis = list(title = "Proportion"))
 
   
@@ -318,36 +325,7 @@ plot_innumeracy_b <- function(data = dat){
   
 }
 
-# Function to plot endline innumeracy (not by rounds)
-plot_innumeracy_e <- function(data = dat){
-  
-  # Calculate the counts and proportions
-  df_counts <- data %>%
-    count(treatment, innumeracy_el) %>%
-    na.omit() |> 
-    group_by(treatment) %>%
-    mutate(fraction = n / sum(n)) |>
-    filter(innumeracy_el == "Cannot add")
-  
-  # Plot
-  p <- df_counts %>%
-    plot_ly(x = ~treatment, 
-            y = ~fraction, 
-            type = "bar", 
-            color = ~treatment, 
-            colors = "Greens", 
-            hovertext = ~paste("Proportion of", innumeracy_el, "in", "\n", treatment, "Group: ", "\n", round(fraction*100, 1), "%"),
-            hoverinfo = "text",
-            showlegend = F) %>%
-    layout(xaxis = list(title = "Treatment"), 
-           yaxis = list(title = "Proportion"))
-  
-  
-  return(p)
-  
-}
-
-# Function to plot baseline innumeracy by round
+# Function to plot baseline innumeracy by round (NOT NEEDED FOR NOW)
 plot_innumeracy_b_r <- function(data = dat,
                                 selected_rounds = c("R5", "R6", "R7", "R8")){
   
@@ -439,28 +417,37 @@ plot_innumeracy_e_r <- function(data = dat,
 
 }
 
-# Function to plot baseline innumeracy (not by rounds)
-plot_numeracy_b <- function(data = dat){
+# Function to plot baseline and endline innumeracy (not by rounds)
+plot_numeracy_be <- function(data = dat){
   
   # Calculate the counts and proportions
   df_counts <- data %>%
-    count(treatment, numeracy_bl) %>%
+    count(numeracy_bl) %>%
     na.omit() |> 
-    group_by(treatment) %>%
     mutate(fraction = n / sum(n)) |>
-    filter(numeracy_bl == "Can divide")
+    filter(numeracy_bl == "Can divide") |>
+    bind_rows(
+      data %>%
+        count(numeracy_el) %>%
+        na.omit() |> 
+        mutate(fraction = n / sum(n)) |>
+        filter(numeracy_el == "Can divide")
+    ) |> 
+    pivot_longer(cols = c(numeracy_bl, numeracy_el), names_to = "time") |> 
+    na.omit() |> 
+    mutate(time = ifelse(time == "numeracy_bl", "Baseline", "Endline"))
   
   # Plot
   p <- df_counts %>%
-    plot_ly(x = ~treatment, 
+    plot_ly(x = ~time, 
             y = ~fraction, 
             type = "bar", 
-            color = ~treatment, 
+            color = ~time, 
             colors = "Greens", 
-            hovertext = ~paste("Proportion of", numeracy_bl, "in", "\n", treatment, "Group: ", "\n", round(fraction*100, 1), "%"),
+            hovertext = ~paste0("Proportion of ", value, " at ", time, ": ", round(fraction*100, 1), "%"),
             hoverinfo = "text",
             showlegend = F) %>%
-    layout(xaxis = list(title = "Treatment"), 
+    layout(xaxis = list(title = ""), 
            yaxis = list(title = "Proportion"))
   
   
@@ -468,36 +455,7 @@ plot_numeracy_b <- function(data = dat){
   
 }
 
-# Function to plot endline numeracy (not by rounds)
-plot_numeracy_e <- function(data = dat){
-  
-  # Calculate the counts and proportions
-  df_counts <- data %>%
-    count(treatment, numeracy_el) %>%
-    na.omit() |> 
-    group_by(treatment) %>%
-    mutate(fraction = n / sum(n)) |>
-    filter(numeracy_el == "Can divide")
-  
-  # Plot
-  p <- df_counts %>%
-    plot_ly(x = ~treatment, 
-            y = ~fraction, 
-            type = "bar", 
-            color = ~treatment, 
-            colors = "Greens", 
-            hovertext = ~paste("Proportion of", numeracy_el, "in", "\n", treatment, "Group: ", "\n", round(fraction*100, 1), "%"),
-            hoverinfo = "text",
-            showlegend = F) %>%
-    layout(xaxis = list(title = "Treatment"), 
-           yaxis = list(title = "Proportion"))
-  
-  
-  return(p)
-  
-}
-
-# Function to plot baseline numeracy by round
+# Function to plot baseline numeracy by round (NOT NEEDED FOR NOW)
 plot_numeracy_b_r <- function(data = dat,
                                 selected_rounds = c("R5", "R6", "R7", "R8")){
   
@@ -590,7 +548,7 @@ plot_numeracy_e_r <- function(data = dat,
 }
 
 # Function to plot endline learned new operation
-plot_learn_newop_e <- function(data = dat,
+plot_learn_newop_e_r <- function(data = dat,
                                selected_rounds = c("R5", "R6", "R7", "R8")){
   
   # Create a list of plots
@@ -617,7 +575,7 @@ plot_learn_newop_e <- function(data = dat,
                              "% Innumeracy at Endline"), 
               hoverinfo = "text",
               showlegend = F) %>%
-      layout(xaxis = list(title = paste0("Treatment (", r, ")")), 
+      layout(xaxis = list(title = paste0("Treatment (", r, ")"), tickfont = list(size = 8)), 
              yaxis = list(title = "Proportion"))
   })
   

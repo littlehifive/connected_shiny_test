@@ -101,16 +101,15 @@ sidebar_3 <- page_sidebar(
     navset_card_tab(
       nav_panel(title = "Student Innumeracy (Pre-Post Comparison)", 
                 layout_column_wrap(
-                  width = 1/2,
+                  width = 1/3,
                   height = "350px",
-                  card(card_header("Baseline Innumeracy"), plotlyOutput("p_innumeracy_b")),
-                  card(card_header("Endline Innumeracy"), plotlyOutput("p_innumeracy_e"))
+                  card(card_header("Baseline and Endline Innumeracy"), plotlyOutput("p_innumeracy_be")),
                 )
       ),
       nav_panel(title = "Student Innumeracy (Pre-Post Comparison by Round)", 
                 layout_column_wrap(
                   width = 1/2,
-                  card(card_header("Baseline Innumeracy by Round"), plotlyOutput("p_innumeracy_b_r")),
+                  #card(card_header("Baseline Innumeracy by Round"), plotlyOutput("p_innumeracy_b_r")),
                   card(card_header("Endline Innumeracy by Round"), plotlyOutput("p_innumeracy_e_r"))
                 )
       )
@@ -120,16 +119,15 @@ sidebar_3 <- page_sidebar(
     navset_card_tab(
       nav_panel(title = "Student Numeracy (Pre-Post Comparison)", 
                 layout_column_wrap(
-                  width = 1/2,
+                  width = 1/3,
                   height = "350px",
-                  card(card_header("Baseline Numeracy"), plotlyOutput("p_numeracy_b")),
-                  card(card_header("Endline Numeracy"), plotlyOutput("p_numeracy_e"))
+                  card(card_header("Baseline and Endline Numeracy"), plotlyOutput("p_numeracy_be")),
                 )
       ),
       nav_panel(title = "Student Numeracy (Pre-Post Comparison by Round)", 
                 layout_column_wrap(
                   width = 1/2,
-                  card(card_header("Baseline Numeracy by Round"), plotlyOutput("p_numeracy_b_r")),
+                  #card(card_header("Baseline Numeracy by Round"), plotlyOutput("p_numeracy_b_r")),
                   card(card_header("Endline Numeracy by Round"), plotlyOutput("p_numeracy_e_r"))
                 )
       )
@@ -137,7 +135,10 @@ sidebar_3 <- page_sidebar(
   
   layout_columns(
     nav_panel(title = "Learned New Operations", 
-              card(card_header("Endline Learned New Operations by Round"), plotlyOutput("p_learn_newop"))
+              layout_column_wrap(
+                width = 1/2,
+                card(card_header("Endline Learned New Operations by Round"), plotlyOutput("p_learn_newop_e_r"))
+              )
     )
     
   )
@@ -291,19 +292,15 @@ server <- function(input, output, session) {
                      selected_rounds = input$selected_round_2)
   })
   
-  output$p_innumeracy_b <- renderPlotly({
-    plot_innumeracy_b(data = selected_data_3())
+  output$p_innumeracy_be <- renderPlotly({
+    plot_innumeracy_be(data = selected_data_3())
   })
   
-  output$p_innumeracy_e <- renderPlotly({
-    plot_innumeracy_e(data = selected_data_3())
-  })
-  
-  output$p_innumeracy_b_r <- renderPlotly({
-    plot_innumeracy_b_r(data = selected_data_3(),
-                      selected_rounds = input$selected_round_3
-    )
-  })
+  # output$p_innumeracy_b_r <- renderPlotly({
+  #   plot_innumeracy_b_r(data = selected_data_3(),
+  #                     selected_rounds = input$selected_round_3
+  #   )
+  # })
   
   output$p_innumeracy_e_r <- renderPlotly({
     plot_innumeracy_e_r(data = selected_data_3(),
@@ -311,19 +308,15 @@ server <- function(input, output, session) {
                       )
   })
   
-  output$p_numeracy_b <- renderPlotly({
-    plot_numeracy_b(data = selected_data_3())
+  output$p_numeracy_be <- renderPlotly({
+    plot_numeracy_be(data = selected_data_3())
   })
   
-  output$p_numeracy_e <- renderPlotly({
-    plot_numeracy_e(data = selected_data_3())
-  })
-  
-  output$p_numeracy_b_r <- renderPlotly({
-    plot_numeracy_b_r(data = selected_data_3(),
-                        selected_rounds = input$selected_round_3
-    )
-  })
+  # output$p_numeracy_b_r <- renderPlotly({
+  #   plot_numeracy_b_r(data = selected_data_3(),
+  #                       selected_rounds = input$selected_round_3
+  #   )
+  # })
   
   output$p_numeracy_e_r <- renderPlotly({
     plot_numeracy_e_r(data = selected_data_3(),
@@ -331,8 +324,8 @@ server <- function(input, output, session) {
     )
   })
   
-  output$p_learn_newop <- renderPlotly({
-    plot_learn_newop_e(data = selected_data_3(),
+  output$p_learn_newop_e_r <- renderPlotly({
+    plot_learn_newop_e_r(data = selected_data_3(),
                     selected_rounds = input$selected_round_3
     )
   })
