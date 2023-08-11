@@ -45,10 +45,10 @@ list_value_box <- list(
 # create sidebar page #1
 sidebar_1 <- page_sidebar(
   sidebar = uiOutput("round_selection_1"),
-  #fillable = FALSE,
+  fillable = FALSE,
   page_fillable(
     layout_column_wrap(
-      width = "250px",
+      width = "150px",
       height = "100px",
       !!!list_value_box
     ),
