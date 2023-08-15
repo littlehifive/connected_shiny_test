@@ -1,6 +1,7 @@
 library(tidyverse)
 
-dat <- read_csv(here::here("data/ConnectEd R5-8 dashboard mock-ups_data - Sheet1.csv"))
+dat <- read_csv(here::here("data/ConnectEd R5-8 dashboard mock-ups_data - Sheet1.csv"),
+                show_col_types = FALSE)
 
 # clean data
 dat <- dat |> 
