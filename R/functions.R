@@ -27,4 +27,23 @@ set_style <- function(){
                 }")
       )
     )
-  }
+}
+
+# Re-format dropdown menu for round selection
+format_dropdown <- function(inputId = "selected_round_1"){
+    renderUI({
+      pickerInput(
+        inputId = inputId,
+        label = HTML("<strong>Select Rounds</strong> <br> (Click on the dropdown menu to select/omit certain rounds):"),
+        choices = unique(dat$round),
+        selected = unique(dat$round),
+        multiple = TRUE,
+        options = list(
+          `actions-box` = TRUE,
+          `selected-text-format` = "count > 2",  # show the count format when more than 2 items are selected
+          `count-selected-text` = "{0} rounds selected",  # custom text format
+          `show-tick` = TRUE
+        )
+      )
+    })
+}

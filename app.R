@@ -1,6 +1,7 @@
 library(shinydashboard)
 library(crosstalk)
 library(bslib)
+library(shinyWidgets)
 
 #library(ggplot2)
 #library(scales)
@@ -153,7 +154,7 @@ ui <- page_navbar(
   nav_panel("3. Innumeracy, Numeracy, and New Operations Learned", sidebar_3)
 )
 
-
+# Old UI
 # ui <- dashboardPage(
 #   set_header(title = "Youth Impact"),
 #   dashboardSidebar(disabled = TRUE),
@@ -207,13 +208,11 @@ ui <- page_navbar(
 # Server
 server <- function(input, output, session) {
   
-  output$round_selection_1 <- renderUI({
-    selectizeInput("selected_round_1",
-                   HTML("Select Rounds <br> (Hit backspace to omit certain rounds):"),
-                   choices = unique(dat$round),
-                   selected = unique(dat$round),
-                   multiple = TRUE)
-  })
+  # see format_dropdown function in functions.R
+  # I haven't found a workaround for setting the round selections globally across pages
+  
+  # first page round selection
+  output$round_selection_1 <- format_dropdown(inputId = "selected_round_1")
   
   selected_data_1 <- reactive({
     validate(
@@ -222,14 +221,8 @@ server <- function(input, output, session) {
     dat[dat$round %in% input$selected_round_1, ]
   })
   
-  
-  output$round_selection_2 <- renderUI({
-    selectizeInput("selected_round_2",
-                   HTML("Select Rounds <br> (Hit backspace to omit certain rounds):"),
-                   choices = unique(dat$round),
-                   selected = unique(dat$round),
-                   multiple = TRUE)
-  })
+  # second page round selection
+  output$round_selection_2 <- format_dropdown(inputId = "selected_round_2")
   
   selected_data_2 <- reactive({
     validate(
@@ -237,14 +230,9 @@ server <- function(input, output, session) {
     )
     dat[dat$round %in% input$selected_round_2, ]
   })
-  
-  output$round_selection_3 <- renderUI({
-    selectizeInput("selected_round_3",
-                   HTML("Select Rounds <br> (Hit backspace to omit certain rounds):"),
-                   choices = unique(dat$round),
-                   selected = unique(dat$round),
-                   multiple = TRUE)
-  })
+
+  # third page round selection
+  output$round_selection_3 <- format_dropdown(inputId = "selected_round_3")
   
   selected_data_3 <- reactive({
     validate(
