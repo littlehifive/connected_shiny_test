@@ -156,8 +156,8 @@ plot_stu_level_b <- function(data = dat){
             legendgroup = ~stud_level_baseline,
             hoverinfo = "text", 
             hovertext = ~paste0("Proportion of ", stud_level_baseline, ": ", round(fraction*100, 1), "%")) %>%
-    layout(yaxis = list(title = 'Proportion'), 
-           xaxis = list(title = ''), 
+    layout(yaxis = list(title = 'Proportion', range = c(0, 0.4)), 
+           xaxis = list(title = '', autorange = "reversed"), 
            barmode = 'stack',
            title = "")
   
@@ -185,8 +185,8 @@ plot_stu_level_e <- function(data = dat){
             legendgroup = ~stud_level_endline,
             hoverinfo = "text", 
             hovertext = ~paste0("Proportion of ", stud_level_endline, ": ", round(fraction*100, 1), "%")) %>%
-    layout(yaxis = list(title = 'Proportion'), 
-           xaxis = list(title = 'Treatment'), 
+    layout(yaxis = list(title = 'Proportion', range = c(0, 0.4)), 
+           xaxis = list(title = 'Treatment', autorange = "reversed"), 
            barmode = 'stack',
            title = "")
   
@@ -318,7 +318,7 @@ plot_innumeracy_be <- function(data = dat){
               hoverinfo = "text",
               showlegend = F) %>%
       layout(xaxis = list(title = ""), 
-             yaxis = list(title = "Proportion"))
+             yaxis = list(title = "Proportion", range = c(0, 0.4)))
 
   
   return(p)
@@ -354,7 +354,7 @@ plot_innumeracy_b_r <- function(data = dat,
               hoverinfo = "text",
               showlegend = F) %>%
       layout(xaxis = list(title = paste0("Treatment (", r, ")"), tickfont = list(size = 8)), 
-             yaxis = list(title = "Proportion"))
+             yaxis = list(title = "Proportion", range = c(0, 0.1)))
   })
   
   # Check how many plots are selected
@@ -400,7 +400,7 @@ plot_innumeracy_e_r <- function(data = dat,
               hoverinfo = "text",
               showlegend = F) %>%
       layout(xaxis = list(title = paste0("Treatment (", r, ")"), tickfont = list(size = 8)), 
-             yaxis = list(title = "Proportion"))
+             yaxis = list(title = "Proportion", range = c(0, 0.1)))
   })
   
   # Check how many plots are selected
@@ -448,7 +448,7 @@ plot_numeracy_be <- function(data = dat){
             hoverinfo = "text",
             showlegend = F) %>%
     layout(xaxis = list(title = ""), 
-           yaxis = list(title = "Proportion"))
+           yaxis = list(title = "Proportion", range = c(0, 0.4)))
   
   
   return(p)
@@ -484,7 +484,7 @@ plot_numeracy_b_r <- function(data = dat,
               hoverinfo = "text",
               showlegend = F) %>%
       layout(xaxis = list(title = paste0("Treatment (", r, ")"), tickfont = list(size = 8)), 
-             yaxis = list(title = "Proportion"))
+             yaxis = list(title = "Proportion", range = c(0, 0.5)))
   })
   
   # Check how many plots are selected
@@ -530,7 +530,7 @@ plot_numeracy_e_r <- function(data = dat,
               hoverinfo = "text",
               showlegend = F) %>%
       layout(xaxis = list(title = paste0("Treatment (", r, ")"), tickfont = list(size = 8)), 
-             yaxis = list(title = "Proportion"))
+             yaxis = list(title = "Proportion", range = c(0, 0.5)))
   })
   
   # Check how many plots are selected
@@ -576,7 +576,7 @@ plot_learn_newop_e_r <- function(data = dat,
               hoverinfo = "text",
               showlegend = F) %>%
       layout(xaxis = list(title = paste0("Treatment (", r, ")"), tickfont = list(size = 8)), 
-             yaxis = list(title = "Proportion"))
+             yaxis = list(title = "Proportion", range = c(0, 0.7)))
   })
   
   # Check how many plots are selected
