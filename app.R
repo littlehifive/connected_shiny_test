@@ -2,6 +2,7 @@ library(shinydashboard)
 library(crosstalk)
 library(bslib)
 library(shinyWidgets)
+library(shiny)
 
 #library(ggplot2)
 #library(scales)
